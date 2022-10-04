@@ -62,9 +62,10 @@ class SearchProblem:
 
 # Nos de uma arvore de pesquisa
 class SearchNode:
-    def __init__(self,state,parent): 
+    def __init__(self,state,parent,depth = 0): 
         self.state = state
         self.parent = parent
+        self.depth = depth
     def __str__(self):
         return "no(" + str(self.state) + "," + str(self.parent) + ")"
     def __repr__(self):
@@ -80,6 +81,11 @@ class SearchTree:
         self.open_nodes = [root]
         self.strategy = strategy
         self.solution = None
+        self.solution_depth = None
+    
+    @property
+    def length(self):
+        return self.solution_depth
 
     # obter o caminho (sequencia de estados) da raiz ate um no
     def get_path(self,node):
@@ -90,18 +96,24 @@ class SearchTree:
         return(path)
 
     # procurar a solucao
-    def search(self):
+    def search(self, limit = None):
+        explored = set() # added aula3/ex1
+        depth = 1 # added aula3/ex2
         while self.open_nodes != []:
             node = self.open_nodes.pop(0)
+            explored.add(node.state) # added aula3/ex1
             if self.problem.goal_test(node.state):
                 self.solution = node
+                self.solution_depth = depth-1
                 return self.get_path(node)
             lnewnodes = []
             for a in self.problem.domain.actions(node.state):
                 newstate = self.problem.domain.result(node.state,a)
-                newnode = SearchNode(newstate,node)
-                lnewnodes.append(newnode)
+                newnode = SearchNode(newstate,node,depth)
+                if newnode.state not in explored: # added aula3/ex1
+                    lnewnodes.append(newnode)
             self.add_to_open(lnewnodes)
+            depth+=1 # added aula3/ex2
         return None
 
     # juntar novos nos a lista de nos abertos de acordo com a estrategia

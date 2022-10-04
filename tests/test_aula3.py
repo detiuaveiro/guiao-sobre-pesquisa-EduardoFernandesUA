@@ -26,7 +26,7 @@ def test_exercicio3(braga_faro):
 
 def test_exercicio4(braga_faro):
     t = SearchTree(braga_faro, 'depth')
-
+    print(t.search(limit=9))
     assert t.search(limit=9) == ['Braga', 'Porto', 'Agueda', 'Aveiro', 'Coimbra', 'Leiria', 'Santarem', 'Lisboa', 'Beja', 'Faro']
 
     assert t.length <= 9
