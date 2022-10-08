@@ -26,7 +26,6 @@ def test_exercicio3(braga_faro):
 
 def test_exercicio4(braga_faro):
     t = SearchTree(braga_faro, 'depth')
-    print(t.search(limit=9))
     assert t.search(limit=9) == ['Braga', 'Porto', 'Agueda', 'Aveiro', 'Coimbra', 'Leiria', 'Santarem', 'Lisboa', 'Beja', 'Faro']
 
     assert t.length <= 9
@@ -48,4 +47,5 @@ def test_exercicio6(braga_faro):
     t = SearchTree(braga_faro, 'depth')
 
     assert t.search() == ['Braga', 'Porto', 'Agueda', 'Aveiro', 'Coimbra', 'Leiria', 'Castelo Branco', 'Santarem', 'Lisboa', 'Evora', 'Beja', 'Faro']
+    print("tests:",t.terminals,t.non_terminals)
     assert round(t.avg_branching,2) == round((19+11-1)/11,2)
