@@ -62,10 +62,12 @@ class SearchProblem:
 
 # Nos de uma arvore de pesquisa
 class SearchNode:
-    def __init__(self,state,parent,depth = 0): 
+    def __init__(self,state,parent,depth = 0,cost = 0,heuristic = 0): 
         self.state = state
         self.parent = parent
         self.depth = depth
+        self.cost = cost
+        self.heuristic = heuristic
     def __str__(self):
         return "no(" + str(self.state) + "," + str(self.parent) + ")"
     def __repr__(self):
@@ -83,6 +85,8 @@ class SearchTree:
         self.solution = None
         self.non_terminals = 0
         self.terminals = 0
+        self.highest_cost_nodes = []
+        self.average_depth = 0
     
     @property
     def length(self):
@@ -91,6 +95,10 @@ class SearchTree:
     @property
     def avg_branching(self):
         return round((self.terminals+self.non_terminals-1)/self.non_terminals,2)
+    
+    @property
+    def cost(self):
+        return self.solution.cost
 
     # obter o caminho (sequencia de estados) da raiz ate um no
     def get_path(self,node):
@@ -106,21 +114,33 @@ class SearchTree:
         self.terminals = 1
         while self.open_nodes != []:
             node = self.open_nodes.pop(0)
-            if limit and node.depth > limit:
+            if limit and node.depth > limit: # used for limit search
                 self.terminals-=1
                 continue
-            if self.problem.goal_test(node.state):
+            if self.problem.goal_test(node.state): # check for goal found
                 self.solution = node
+                max_cost = self.open_nodes[-1].cost
+                for i in reversed(self.open_nodes):
+                    if i.cost < max_cost: break
+                    self.highest_cost_nodes = [i] + self.highest_cost_nodes
+                self.average_depth /= self.non_terminals + self.terminals
                 return self.get_path(node)
             self.non_terminals+=1
             self.terminals-=1
             lnewnodes = []
             for a in self.problem.domain.actions(node.state):
                 newstate = self.problem.domain.result(node.state,a)
-                newnode = SearchNode(newstate,node,node.depth+1)
-                if newnode.state not in self.get_path(node):
-                    self.terminals+=1
+                if newstate not in self.get_path(node):
+                    added_cost = self.problem.domain.cost(node.state,(node.state, newstate))
+                    newnode = SearchNode(
+                        newstate,
+                        node,
+                        depth = node.depth+1, 
+                        cost = node.cost + added_cost,
+                        heuristic = self.problem.domain.heuristic(newstate,self.problem.goal))
                     lnewnodes.append(newnode)
+                    self.average_depth += newnode.depth
+                    self.terminals+=1
             self.add_to_open(lnewnodes)
         return None
 
@@ -131,5 +151,12 @@ class SearchTree:
         elif self.strategy == 'depth':
             self.open_nodes[:0] = lnewnodes
         elif self.strategy == 'uniform':
-            pass
+            self.open_nodes.extend(lnewnodes)
+            self.open_nodes.sort(key=lambda e: e.cost)
+        elif self.strategy == 'greedy':
+            self.open_nodes.extend(lnewnodes)
+            self.open_nodes.sort(key=lambda e: e.heuristic)
+        elif self.strategy == 'a*':
+            self.open_nodes.extend(lnewnodes)
+            self.open_nodes.sort(key=lambda e: e.heuristic+e.cost)
 

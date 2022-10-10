@@ -10,6 +10,7 @@
 #
 
 
+from math import dist
 from tree_search import *
 
 class Cidades(SearchDomain):
@@ -29,9 +30,12 @@ class Cidades(SearchDomain):
         if C1==city:
             return C2
     def cost(self, city, action):
-        pass
+        for connection in self.connections:
+            if (connection[0]==action[0] and connection[1]==action[1]) or (connection[1]==action[0] and connection[0]==action[1]):
+                return connection[2]
+        return None
     def heuristic(self, city, goal_city):
-        pass
+        return dist(self.coordinates[city],self.coordinates[goal_city])
     def satisfies(self, city, goal_city):
         return goal_city==city
 
