@@ -30,9 +30,10 @@ class Cidades(SearchDomain):
         if C1==city:
             return C2
     def cost(self, city, action):
-        for connection in self.connections:
-            if (connection[0]==action[0] and connection[1]==action[1]) or (connection[1]==action[0] and connection[0]==action[1]):
-                return connection[2]
+        origin, dest = action
+        for A,B,C in self.connections:
+            if (A==origin and B==dest)  or (B==origin and A==dest):
+                return C
         return None
     def heuristic(self, city, goal_city):
         return dist(self.coordinates[city],self.coordinates[goal_city])

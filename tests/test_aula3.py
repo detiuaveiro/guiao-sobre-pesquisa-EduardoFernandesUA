@@ -7,7 +7,6 @@ def braga_faro():
 
 def test_exercicio1(braga_faro):
     t = SearchTree(braga_faro,'depth')
-
     assert t.search() == ['Braga', 'Porto', 'Agueda', 'Aveiro', 'Coimbra', 'Leiria', 'Castelo Branco', 'Santarem', 'Lisboa', 'Evora', 'Beja', 'Faro']
 
 def test_exercicio2(braga_faro):

@@ -133,7 +133,7 @@ class SearchTree:
                 if newstate not in self.get_path(node):
                     added_cost = self.problem.domain.cost(node.state,(node.state, newstate))
                     newnode = SearchNode(
-                        newstate,
+                        newstate,   
                         node,
                         depth = node.depth+1, 
                         cost = node.cost + added_cost,
