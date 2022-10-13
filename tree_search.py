@@ -13,6 +13,7 @@
 #  Inteligência Artificial, 2014-2019
 
 from abc import ABC, abstractmethod
+from re import S
 
 # Dominios de pesquisa
 # Permitem calcular
@@ -62,12 +63,13 @@ class SearchProblem:
 
 # Nos de uma arvore de pesquisa
 class SearchNode:
-    def __init__(self,state,parent,depth = 0,cost = 0,heuristic = 0): 
+    def __init__(self,state,parent,depth = 0,cost = 0,heuristic = 0, action = None): 
         self.state = state
         self.parent = parent
         self.depth = depth
         self.cost = cost
         self.heuristic = heuristic
+        self.action = action
     def __str__(self):
         return "no(" + str(self.state) + "," + str(self.parent) + ")"
     def __repr__(self):
@@ -87,6 +89,7 @@ class SearchTree:
         self.terminals = 0
         self.highest_cost_nodes = []
         self.average_depth = 0
+        self.plan = []
     
     @property
     def length(self):
@@ -123,21 +126,29 @@ class SearchTree:
                 for i in reversed(self.open_nodes):
                     if i.cost < max_cost: break
                     self.highest_cost_nodes = [i] + self.highest_cost_nodes
+                parent = node
+                while parent:
+                    self.plan = [parent.action] + self.plan
+                    parent = parent.parent
+                self.plan = self.plan[1:]
                 self.average_depth /= self.non_terminals + self.terminals
+                print(self.plan)
                 return self.get_path(node)
             self.non_terminals+=1
             self.terminals-=1
             lnewnodes = []
             for a in self.problem.domain.actions(node.state):
                 newstate = self.problem.domain.result(node.state,a)
-                if newstate not in self.get_path(node):
+                # print("NEWSTATE",newstate)
+                if newstate and newstate not in self.get_path(node):
                     added_cost = self.problem.domain.cost(node.state,(node.state, newstate))
                     newnode = SearchNode(
                         newstate,   
                         node,
                         depth = node.depth+1, 
                         cost = node.cost + added_cost,
-                        heuristic = self.problem.domain.heuristic(newstate,self.problem.goal))
+                        heuristic = self.problem.domain.heuristic(newstate,self.problem.goal),
+                        action=a)
                     lnewnodes.append(newnode)
                     self.average_depth += newnode.depth
                     self.terminals+=1

@@ -93,7 +93,24 @@ class STRIPS(SearchDomain):
     # Result of a given "action" in a given "state"
     # ( returns None, if the action is not applicable in the state)
     def result(self, state, action):
-        return action
+        # print("RESULT state",state,"\naction:", action.pc)
+        # check pre condicoes
+
+        newstate = [*state]
+        for i in action.pc:
+            if i not in state:
+                return None
+
+        # efeitos negativos
+        for i in action.neg:
+            newstate.remove(i)
+        
+        # efeitos positivos
+        for i in action.pos:
+            newstate.append(i)
+        
+        return newstate
+        
 
     def cost(self, state, action):
         return 1
@@ -103,7 +120,10 @@ class STRIPS(SearchDomain):
 
     # Checks if a given "goal" is satisfied in a given "state"
     def satisfies(self, state, goal):
-        pass
+        # print("SATIS state", sta, "\ngoal", goal)
+        for i in goal:
+            if i not in state: return False
+        return True
 
 
 
